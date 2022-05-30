@@ -46,14 +46,53 @@ No protótipo virtual:
 ![ProjetoReal](./img/ProjetoReal.jpg)
 
 
-
 ## Resultados
 No protótipo virtual o projeto funcionou com a adaptação do potenciômetro para simulação da célula de carga, pois no tinkercad não possui uma célula, o projeto funcionou corretamente.
+O protótipo real, teve sucesso, foi possível calibrar a balança corretamente e foi observado que a balança fazia a correta leitura do peso e a contagem dos minutos.
 
-O protótipo real, teve sucesso, foi possível calibrar a balança corretamente e assim o projeto obteve sucesso, foi observado que a balança fazia a correta leitura do peso e a contagem dos minutos.
+Durante a criação do projeto tivemos alguns problemas na execução. Quando instalado o módulo HX711 e a célula de carga foi observado que ela não estava fazendo uma leitura correta dos materiais, fugindo do esperado, a primeira conclusão para este problema foi de que havia maus contatos entre célula de carga, módulo e Arduino.
+
+Portanto foi completamente refeita as soldas e adaptados os pinos em uma protoboard eliminando os maus contatos e entregando uma leitura esperada para a calibragem da balança. Com isso seguimos com a programação para finalizar a parte da leitura.
 
 
-## Código Fonte	
+### Código fonte do projeto físico
+	// INCLUSÃO DE BIBLIOTECAS
+	#include <HX711.h>
+	
+	// DEFINIÇÕES DE PINOS
+	#define pinDT  2
+	#define pinSCK  3
+	#define pinBotao 4
+	
+	// INSTANCIANDO OBJETOS
+	HX711 scale;
+	
+	// DECLARAÇÃO DE VARIÁVEIS
+	float medida = 0;
+	
+	void setup() {
+	  Serial.begin(57600);
+	
+	  scale.begin(pinDT, pinSCK); // CONFIGURANDO OS PINOS DA BALANÇA
+	  scale.set_scale(); // LIMPANDO O VALOR DA ESCALA
+	
+	  delay(2000);
+	  scale.tare(); // ZERANDO A BALANÇA PARA DESCONSIDERAR A MASSA DA ESTRUTURA
+	
+	  Serial.println("Balança Zerada");
+	}
+	
+	void loop() {
+	
+	  medida = scale.get_units(5); // SALVANDO NA VARIAVEL O VALOR DA MÉDIA DE 5 MEDIDAS
+	  Serial.println(medida, 3); // ENVIANDO PARA MONITOR SERIAL A MEDIDA COM 3 CASAS DECIMAIS
+	
+	  scale.power_down(); // DESLIGANDO O SENSOR
+	  delay(1000); // AGUARDA 5 SEGUNDOS
+	  scale.power_up(); // LIGANDO O SENSOR
+	}
+	
+## Código Fonte	do protótipo virtual
 	#include <LiquidCrystal.h>
 		
 		
@@ -129,42 +168,3 @@ O protótipo real, teve sucesso, foi possível calibrar a balança corretamente 
 	digitalWrite(verm, LOW);
 	digitalWrite(azul, HIGH);
 	}}		 
-
-
-### Código fonte da calibragem
-	// INCLUSÃO DE BIBLIOTECAS
-	#include <HX711.h>
-	
-	// DEFINIÇÕES DE PINOS
-	#define pinDT  2
-	#define pinSCK  3
-	#define pinBotao 4
-	
-	// INSTANCIANDO OBJETOS
-	HX711 scale;
-	
-	// DECLARAÇÃO DE VARIÁVEIS
-	float medida = 0;
-	
-	void setup() {
-	  Serial.begin(57600);
-	
-	  scale.begin(pinDT, pinSCK); // CONFIGURANDO OS PINOS DA BALANÇA
-	  scale.set_scale(); // LIMPANDO O VALOR DA ESCALA
-	
-	  delay(2000);
-	  scale.tare(); // ZERANDO A BALANÇA PARA DESCONSIDERAR A MASSA DA ESTRUTURA
-	
-	  Serial.println("Balança Zerada");
-	}
-	
-	void loop() {
-	
-	  medida = scale.get_units(5); // SALVANDO NA VARIAVEL O VALOR DA MÉDIA DE 5 MEDIDAS
-	  Serial.println(medida, 3); // ENVIANDO PARA MONITOR SERIAL A MEDIDA COM 3 CASAS DECIMAIS
-	
-	  scale.power_down(); // DESLIGANDO O SENSOR
-	  delay(1000); // AGUARDA 5 SEGUNDOS
-	  scale.power_up(); // LIGANDO O SENSOR
-	}
-...............................................
