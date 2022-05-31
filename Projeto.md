@@ -38,12 +38,15 @@ No protótipo virtual:
 + Tela LCD
 + Resistor 220 Ohns
 
+**Projeto Real:**
+
+![ProjetoReal](./img/ProjetoReal1.jpeg)
+
+![ProjetoReal](./img/ProjetoReal2.jpeg)
+
 ## Imagens do Projeto
 **Projeto no TinkerCad:**
 ![ProjetoVirtual](./img/ProjetoVirtual.jpg)
-
-**Projeto Real:**
-![ProjetoReal](./img/ProjetoReal.jpg)
 
 
 ## Resultados
@@ -56,45 +59,132 @@ Portanto foi completamente refeita as soldas e adaptados os pinos em uma protobo
 
 
 ### Código fonte do projeto físico
+
 	// INCLUSÃO DE BIBLIOTECAS
 	#include <HX711.h>
-	
+
 	// DEFINIÇÕES DE PINOS
 	#define pinDT  2
-	#define pinSCK  3
-	#define pinBotao 4
-	
+	#define pinSCK  7
+
+	// DEFINIÇÕES
+	#define pesoMin 0.010
+	#define pesoMax 1.0
+	#define escala 0.0f
+
 	// INSTANCIANDO OBJETOS
 	HX711 scale;
-	
-	// DECLARAÇÃO DE VARIÁVEIS
-	float medida = 0;
-	
+
+	// DECLARAÇÃO DE VARIÁVEIS  
+	float  pesoencima=0;
+
+	long pesor = 0;
+	long pesoa = 0;
+
+	int str = 0; //SERVE COMO CONTADOR INICIAL
+	int verm = 12; 
+	int azul = 10; 
+	int verd = 8; 
+
+	int segundos=0; 
+	int minutos=0;
+	int estado=0;
+
+	//int contagem=15;
+
+
+
+
+
 	void setup() {
-	  Serial.begin(57600);
-	
+	 Serial.begin(57600);
+
 	  scale.begin(pinDT, pinSCK); // CONFIGURANDO OS PINOS DA BALANÇA
-	  scale.set_scale(); // LIMPANDO O VALOR DA ESCALA
-	
+	  scale.set_scale(208783); // ENVIANDO O VALOR DA ESCALA CALIBRADO
+
 	  delay(2000);
 	  scale.tare(); // ZERANDO A BALANÇA PARA DESCONSIDERAR A MASSA DA ESTRUTURA
-	
-	  Serial.println("Balança Zerada");
+	  Serial.println("Setup Finalizado!");
 	}
-	
+
 	void loop() {
-	
-	  medida = scale.get_units(5); // SALVANDO NA VARIAVEL O VALOR DA MÉDIA DE 5 MEDIDAS
-	  Serial.println(medida, 3); // ENVIANDO PARA MONITOR SERIAL A MEDIDA COM 3 CASAS DECIMAIS
-	
-	  scale.power_down(); // DESLIGANDO O SENSOR
-	  delay(1000); // AGUARDA 5 SEGUNDOS
-	  scale.power_up(); // LIGANDO O SENSOR
+
+    	scale.power_up(); // LIGANDO O SENSOR
+    
+	pesoencima = scale.get_units(5); // SALVANDO NA VARIAVEL O VALOR DA MÉDIA DE 5 MEDIDAS
+	Serial.println(pesoencima, 3);
+	if ( pesoencima <= pesoMin ){ // CONFERE SE A MASSA ESTÁ NA FAIXA VÁLIDA
+	scale.tare(); // ZERA A BALANÇA CASO A MASSA SEJA MENOR QUE O VALOR MIN
+	pesoencima = 0;
+	//Serial.println("Tara Configurada!");
+	} else if (  pesoencima >= pesoMax ){
+	scale.tare(); // ZERA A BALANÇA CASO A MASSA SEJA MAIOR QUE O VALOR MÁX
+	pesoencima = 0;
+	Serial.println("Tara Configurada!");
+	} else {
+	//Serial.println(pesoencima);
 	}
+
+    	scale.power_down(); // DESLIGANDO O SENSOR
+  
+  
+	for (int segundos = 0 ; segundos <= 59;segundos ++)
+	{
+	delay (10);
+	}
+	if (segundos%60==0)
+	{
+	minutos++;
+	}
+	if (minutos%60==0)
+	{
+	minutos=0;
+	}
+  
+   	if(pesoencima>0.05)
+	{ 
+  	digitalWrite(verd, HIGH);
+ 	digitalWrite(verm, LOW);
+   	digitalWrite(azul, LOW);
+ 
+    	if ( minutos >5 && str<=0)
+	{
+        digitalWrite(verd, LOW);
+        digitalWrite(verm, HIGH);
+        digitalWrite(azul, LOW);   
+     	}
+    	if ( pesoa<pesoencima && str >0 && minutos > 5){
+        digitalWrite(verd, LOW);
+        digitalWrite(verm, HIGH);
+        digitalWrite(azul, HIGH);
+        }
+  
+    	}
+    	else
+	{
+    	digitalWrite(verd, LOW);
+    	digitalWrite(verm, LOW);
+    	digitalWrite(azul, HIGH);
+      	minutos=0;
+ 
+     	if (minutos >5 && pesoencima>0.02)
+	{
+     	str++;
+     	pesoa=pesor;
+ 	minutos = 0;
+        }
+  
+    	if (minutos >5 && pesoencima>0.02 && str > 0 )
+	{
+      	pesoa = pesor;
+      	minutos = 0;
+      	}  
+    	}
+	}
+
 	
 ## Código Fonte	do protótipo virtual
 	#include <LiquidCrystal.h>
-		
 		
 	LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 	int sen= A0;
@@ -128,20 +218,20 @@ Portanto foi completamente refeita as soldas e adaptados os pinos em uma protobo
 	if(agua>0){
 	for (int segundos = 0 ; segundos <= 59;segundos ++) 
 	{
-    delay (10);
-    Serial.println(minutos);
-    }
+   	delay (10);
+    	Serial.println(minutos);
+    	}
 
-    if (segundos%60==0)
-    {
-    minutos++;
-    }
-    if (minutos%60==0)
-    {
-    minutos=0;
-    }
+    	if (segundos%60==0)
+    	{
+    	minutos++;
+    	}
+	if (minutos%60==0)
+	{
+	minutos=0;
+	}
 	
-    if (minutos<15){
+   	if (minutos<15){
 	lcd.print ("temporestante:");
 	lcd.print (minutos);
 	digitalWrite(verd, HIGH);
