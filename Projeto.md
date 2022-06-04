@@ -9,7 +9,7 @@
 
 ## Descrição do projeto
 
-O projeto tem como objetivo desenvolver uma plataforma útil no dia-dia para lembrete de hidratação. Para manter efetivo o projeto utilizaremos alguns mecanismos para o monitoramento do peso, a partir daí com o auxílio de um marcador de tempo faremos um lembrete visual e sonoro para alertar o usuário da hidratação. Para evitar fraudes os lembretes só serão desativados quando a garrafa voltar para a base com o peso menor ou igual ao anterior.
+O projeto tem como objetivo desenvolver uma plataforma útil no dia-dia para lembrete de hidratação. Para manter efetivo o projeto utilizaremos alguns mecanismos para o monitoramento do peso, a partir daí com o auxílio de um marcador de tempo faremos um lembrete visual para alertar o usuário da hidratação.
 
 ## Motivação
 
